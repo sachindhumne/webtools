@@ -22,7 +22,7 @@ public class Task {
 	private String status;
 	private String priority;
 	
-	@OneToOne(fetch = FetchType.EAGER,cascade= {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval=true)
+	@OneToOne(fetch = FetchType.EAGER,cascade= {CascadeType.PERSIST, CascadeType.MERGE})
 	@JoinColumn(name="userId")
 	private User assignee;
 	
