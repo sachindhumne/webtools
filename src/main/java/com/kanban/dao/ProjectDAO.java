@@ -75,7 +75,7 @@ public class ProjectDAO extends DAO{
 			//This will return user object
 			//Query query =  getSession().createQuery("SELECT u FROM User u JOIN u.projects p WHERE p.projectId =:projectId");
 			
-			Query query =  getSession().createQuery("SELECT p FROM Project p  WHERE p.projectId =:projectId");
+			Query query =  getSession().createQuery("SELECT p FROM Project p JOIN p.tasks  WHERE p.projectId =:projectId");
 			//SELECT i FROM Item i JOIN FETCH i.order", Item.class
 			query.setParameter("projectId", projectId);
 			project = (Project) query.uniqueResult();
