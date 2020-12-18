@@ -1,10 +1,14 @@
 package com.kanban.pojo;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 @Entity
@@ -18,12 +22,22 @@ public class Task {
 	private String status;
 	private String priority;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@OneToOne(fetch = FetchType.EAGER,cascade= {CascadeType.PERSIST, CascadeType.MERGE}, orphanRemoval=true)
 	@JoinColumn(name="userId")
-	private Assignee assignee;
+	private User assignee;
+	
+	@OneToMany(targetEntity = Comment.class, orphanRemoval=true)
+	@JoinColumn(name="taskId",  referencedColumnName = "taskId")
+	public List<Comment> comments;
 	
 	public int getTaskId() {
 		return taskId;
+	}
+	public List<Comment> getComments() {
+		return comments;
+	}
+	public void setComments(List<Comment> comments) {
+		this.comments = comments;
 	}
 	public void setTaskId(int taskId) {
 		this.taskId = taskId;
@@ -58,10 +72,10 @@ public class Task {
 	public void setPriority(String priority) {
 		this.priority = priority;
 	}
-	public Assignee getAssignee() {
+	public User getAssignee() {
 		return assignee;
 	}
-	public void setAssignee(Assignee assignee) {
+	public void setAssignee(User assignee) {
 		this.assignee = assignee;
 	}
 	

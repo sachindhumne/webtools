@@ -14,6 +14,6 @@
   <mapping class="com.kanban.pojo.Project"/>
   <mapping class="com.kanban.pojo.UserStory"/>
   <mapping class="com.kanban.pojo.Task"/>
-  <mapping class="com.kanban.pojo.Assignee"/>
+  <mapping class="com.kanban.pojo.Comment"/>
  </session-factory>
 </hibernate-configuration>

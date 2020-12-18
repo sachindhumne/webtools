@@ -4,20 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.query.Query;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import com.kanban.filter.RequestWrapper;
 import com.kanban.pojo.User;
 
 public class UserDAO extends DAO{
 	public User addUser(User user) {
 		User u = new User();
-		String pw_hash = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10));
+		String pw_hash = BCrypt.hashpw(RequestWrapper.cleanXSS(user.getPassword()), BCrypt.gensalt(10));
 		try {
 			begin();
-			u.setEmailId(user.getEmailId());
-			u.setUserName(user.getUserName());
+			u.setEmailId(RequestWrapper.cleanXSS(user.getEmailId()));
+			u.setUserName(RequestWrapper.cleanXSS(user.getUserName()));
 			u.setPassword(pw_hash);
-			u.setImage(user.getImage());
+			u.setImage(RequestWrapper.cleanXSS(user.getImage()));
+			u.setRole(RequestWrapper.cleanXSS(user.getRole()));
 			getSession().save(u);
 			commit();
 			
@@ -26,6 +30,24 @@ public class UserDAO extends DAO{
 			System.out.println("Error while inserting new user into the database");
 		}
 		return u;
+	}
+	
+	public boolean existingUser(User user) {
+		User u = null;
+		String pw_hash = BCrypt.hashpw(RequestWrapper.cleanXSS(user.getPassword()), BCrypt.gensalt(10));
+		try {
+			begin();
+			Query query = getSession().createQuery("from User where emailId= :emailId or userName= :userName");
+			query.setParameter("emailId", user.getEmailId());
+			query.setParameter("userName", user.getUserName());
+			u = (User) query.uniqueResult();
+			commit();
+			
+		} catch (Exception e) {
+			rollback();
+			System.out.println("Error while searching user into the database");
+		}
+		return u != null ? true: false;
 	}
 	
 	public User updateUserPassword(User user) {
@@ -89,6 +111,7 @@ public class UserDAO extends DAO{
 			query.setParameter("uname", user.getUserName());
 			u = (User) query.uniqueResult();
 			if(BCrypt.checkpw(user.getPassword(), u.getPassword())) {
+				u.setPassword("");
 				return u;
 			};
 			
@@ -97,6 +120,24 @@ public class UserDAO extends DAO{
 			System.out.println("Error while Deleteing user into the database");
 		}
 		return u;
+	}
+	
+	public boolean verifyBasicAuth(String[] userPass) {
+		try {
+			begin();
+			Query query = getSession().createQuery("from User where userName=:uname");
+			query.setParameter("uname", userPass[0]);
+			User u = (User) query.uniqueResult();
+			if(BCrypt.checkpw(userPass[1], u.getPassword())) {
+				commit();
+				return true;
+			};
+			
+		} catch (Exception e) {
+			rollback();
+			System.out.println("Error while Deleteing user into the database");
+		}
+		return false;
 	}
 	
 	public ArrayList<User> getUserNames() {

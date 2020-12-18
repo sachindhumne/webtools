@@ -28,6 +28,7 @@ public class CORSInterceptor implements HandlerInterceptor {
 		response.setHeader(MAX_AGE_NAME, "3600");
 		response.setHeader(REQUEST_METHOD, "GET, POST, PUT, DELETE, OPTIONS");
 		
+		
 		String origin = request.getHeader(REQUEST_ORIGIN_NAME);
 		System.out.println("Received Origin "+ origin);
 		if (origin == null || origin.equals("http://localhost:4200")) {

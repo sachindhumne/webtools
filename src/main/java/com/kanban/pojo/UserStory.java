@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -22,7 +23,7 @@ public class UserStory {
 	private int storyPoints;
 	private String priority;
 	
-	@OneToMany(targetEntity = Task.class, cascade = CascadeType.ALL)
+	@OneToMany(targetEntity = Task.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
 	@JoinColumn(name="storyId", referencedColumnName = "storyId")
 	private Set<Task> tasks;
 	

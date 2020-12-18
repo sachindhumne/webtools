@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.kanban.dao.ProjectDAO;
 import com.kanban.dao.UserDAO;
 import com.kanban.dao.UserStoryDAO;
+import com.kanban.pojo.Project;
 import com.kanban.pojo.User;
 import com.kanban.pojo.UserStory;
 
@@ -23,7 +25,7 @@ public class UserStoryController {
 	@RequestMapping(value = "/user-stories", method = RequestMethod.POST, consumes = { MediaType.APPLICATION_JSON_VALUE})
 	@ResponseBody
 	public ResponseEntity<UserStory> registration(@RequestBody UserStory userStory, UserStoryDAO userStoryDAO) {
-		System.out.println("In Controller");
+		System.out.println("In UserStory Controller");
 		UserStory u = userStoryDAO.addStory(userStory);
 		return new ResponseEntity<UserStory>(u, HttpStatus.CREATED);
 	}
@@ -42,7 +44,7 @@ public class UserStoryController {
 	@RequestMapping(value = "/user-story/{id}", method = RequestMethod.GET, produces  = { MediaType.APPLICATION_JSON_VALUE})
 	@ResponseBody
 	public ResponseEntity<UserStory> getUserStory(@PathVariable int id, UserStoryDAO userStoryDAO) {
-		System.out.println("In Controller");
+		System.out.println("In UserStory Controller");
 		UserStory story = userStoryDAO.getUserStory(id);
 		if(story != null)
 			return new ResponseEntity<UserStory>(story, HttpStatus.OK);
@@ -57,5 +59,15 @@ public class UserStoryController {
 			return new ResponseEntity<String>("User Stories has been deleted Successfuly",HttpStatus.OK);
 		else
 			return new ResponseEntity<String>("Invalid input or no such project exist",HttpStatus.BAD_REQUEST);
+	}
+	
+	@RequestMapping(value="/user-stories/{id}", method=RequestMethod.PUT, produces = { MediaType.APPLICATION_JSON_VALUE})
+	@ResponseBody
+	public ResponseEntity<UserStory> updateUserStory(@PathVariable int id, @RequestBody UserStory userStory, UserStoryDAO userStoryDAO){
+		UserStory p = userStoryDAO.updateStory(userStory, id);
+		if(p != null)
+			return new ResponseEntity<UserStory>(p, HttpStatus.ACCEPTED);
+		else 
+			return new ResponseEntity<UserStory>(HttpStatus.BAD_REQUEST);
 	}
 }

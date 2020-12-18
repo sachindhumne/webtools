@@ -8,4 +8,6 @@
 	<bean name="projectDAO" class="com.kanban.dao.ProjectDAO" />
 	<bean name="userStoryDAO" class="com.kanban.dao.UserStoryDAO" />
 	<bean name="taskDAO" class="com.kanban.dao.TaskDAO"/>
+	<bean name="commentDAO" class="com.kanban.dao.CommentDAO" />
+	<bean name="userValidator" class="com.kanban.validator.UserValidator" />
 </beans>

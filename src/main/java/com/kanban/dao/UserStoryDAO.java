@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.hibernate.query.Query;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
+import com.kanban.filter.RequestWrapper;
 import com.kanban.pojo.Project;
 import com.kanban.pojo.User;
 import com.kanban.pojo.UserStory;
@@ -16,11 +17,11 @@ public class UserStoryDAO extends DAO{
 		UserStory u = new UserStory();
 		try {
 			begin();
-			u.setDescription(userStory.getDescription());
-			u.setPriority(userStory.getPriority());
-			u.setStatus(userStory.getStatus());
+			u.setDescription(RequestWrapper.cleanXSS(userStory.getDescription()));
+			u.setPriority(RequestWrapper.cleanXSS(userStory.getPriority()));
+			u.setStatus(RequestWrapper.cleanXSS(userStory.getStatus()));
 			u.setStoryPoints(userStory.getStoryPoints());
-			u.setTitle(userStory.getTitle());
+			u.setTitle(RequestWrapper.cleanXSS(userStory.getTitle()));
 			u.setProjectId(userStory.getProjectId());
 			getSession().save(u);
 			commit();
@@ -84,5 +85,24 @@ public class UserStoryDAO extends DAO{
 		}
 		return false;
 		
+	}
+	
+	public UserStory updateStory(UserStory userStory, int storyId) {
+		UserStory updateStory = null;
+		try {
+			begin();
+			updateStory = (UserStory) getSession().load(UserStory.class, storyId);
+			updateStory.setDescription(userStory.getDescription());
+			updateStory.setPriority(userStory.getPriority());
+			updateStory.setStatus(userStory.getStatus());
+			updateStory.setStoryPoints(userStory.getStoryPoints());
+			updateStory.setTitle(userStory.getTitle());
+			commit();
+			updateStory = (UserStory) getSession().load(UserStory.class, storyId);
+		} catch (Exception e) {
+			rollback();
+			System.out.println("Error while updating user into the database");
+		}
+		return updateStory;
 	}
 }

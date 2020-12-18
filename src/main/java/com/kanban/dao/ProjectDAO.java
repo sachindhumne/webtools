@@ -1,14 +1,11 @@
 package com.kanban.dao;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 
-import com.kanban.pojo.Assignee;
+import com.kanban.filter.RequestWrapper;
 import com.kanban.pojo.Project;
 import com.kanban.pojo.User;
 
@@ -18,10 +15,10 @@ public class ProjectDAO extends DAO{
 		Project p = new Project();
 		try {
 			begin();
-			p.setOwner(project.getOwner());
-			p.setDescription(project.getDescription());
+			p.setOwner(RequestWrapper.cleanXSS(project.getOwner()));
+			p.setDescription(RequestWrapper.cleanXSS(project.getDescription()));
 			p.setStatus("New");
-			p.setTitle(project.getTitle());
+			p.setTitle(RequestWrapper.cleanXSS(project.getTitle()));
 			//int projectID = (Integer) getSession().save(p);
 			
 			/*
@@ -32,53 +29,43 @@ public class ProjectDAO extends DAO{
 			 * u.getUserId()); query.executeUpdate(); }
 			 */
 			
-			Set<Assignee> members = (Set<Assignee>) project.getMembers(); 
-			for(Assignee u: members) {
+			Set<User> members = (Set<User>) project.getMembers(); 
+			for(User u: members) {
 				p.getMembers().add(u);
 			}
 			getSession().save(p);
 			commit();		
 		} catch (Exception e) {
 			rollback();
-			System.out.println("Error while inserting new user into the database");
+			System.out.println("Error while adding project to the database");
 		}
 		return p;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public ArrayList<Project> getAllProjects() {
-		ArrayList<Project> projects = new ArrayList<Project>();
-		ArrayList<Project> assigneeProjects = new ArrayList<Project>();	
+		ArrayList<Project> projects = new ArrayList<Project>();	
 		try {
 			begin();
-			Query query =  getSession().createQuery("SELECT p, new map(u.userId as userId, u.image as image, u.userName as userName, u.emailId as emailId) FROM Project p JOIN p.members u");
-			
+			Query query =  getSession().createQuery("FROM Project");
+			projects = (ArrayList<Project>) query.list();
+			/*
+			 * for(Project p: projects) { for(User u: p.getMembers()) { u.setPassword(""); }
+			 * }
+			 */
 			//query.setParameter("subtype", User.class);
 			//projects = (ArrayList<Project>) getSession().createCriteria(Project.class)
 			//.createCriteria("members").list();
 			//select b.* from bar b inner join foo f on f.bar_id = b.id// SELECT p FROM Project p JOIN p.members a
-			
-			projects = (ArrayList<Project>) query.getResultList();
-//			for(Project p: projects) {
-//				Project dummy = new Project();
-//				dummy.setOwner(p.getOwner());
-//				dummy.setDescription(p.getDescription());
-//				dummy.setStatus("New");
-//				dummy.setTitle(p.getTitle());
-//				Set<Assignee> ass = new HashSet<Assignee>();
-//				ass = (Set<Assignee>) p.getMembers();
-//				dummy.setMembers(ass);
-//				dummy.setUserStories(p.getUserStories());
-//				assigneeProjects.add(dummy);
-//			}
+//			SELECT p, new map(u.userId as userId, u.image as image, u.userName as userName, u.emailId as emailId) FROM Project p JOIN p.members u
 					
 			commit();
 		} catch (Exception e) {
 			rollback();
 			projects = null;
-			System.out.println("Error while inserting new user into the database");
+			System.out.println("Error while fectching all Projects the database");
 		}
-		return assigneeProjects;
+		return projects;
 	}
 	
 	public Project getProjectDetails(int projectId) {
@@ -88,15 +75,18 @@ public class ProjectDAO extends DAO{
 			//This will return user object
 			//Query query =  getSession().createQuery("SELECT u FROM User u JOIN u.projects p WHERE p.projectId =:projectId");
 			
-			Query query =  getSession().createQuery("SELECT p FROM Project p JOIN FETCH p.members  WHERE p.projectId =:projectId");
+			Query query =  getSession().createQuery("SELECT p FROM Project p  WHERE p.projectId =:projectId");
 			//SELECT i FROM Item i JOIN FETCH i.order", Item.class
 			query.setParameter("projectId", projectId);
 			project = (Project) query.uniqueResult();
+			/*
+			 * for(User u: project.getMembers()) { u.setPassword(""); }
+			 */
 			commit();
 		} catch (Exception e) {
 			rollback();
 			project = null;
-			System.out.println("Error while inserting new user into the database");
+			System.out.println("Error while inserting new project into the database");
 		}
 		return project;
 	}
@@ -131,7 +121,7 @@ public class ProjectDAO extends DAO{
 
 		} catch (Exception e) {
 			rollback();
-			System.out.println("Error while updating user into the database");
+			System.out.println("Error while updating project into the database");
 		}
 		return updateProject;
 	}

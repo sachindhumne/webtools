@@ -26,9 +26,9 @@ public class Project {
 	
 	//@JsonBackReference
 	@ManyToMany(cascade= {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
-	private Set<Assignee> members = new HashSet<Assignee>();
+	private Set<User> members = new HashSet<User>();
 	
-	@OneToMany(targetEntity = UserStory.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(targetEntity = UserStory.class, fetch = FetchType.EAGER)
 	@JoinColumn(name="projectId", referencedColumnName = "projectId")
 	private Set<UserStory> userStories;
 
@@ -37,11 +37,11 @@ public class Project {
 	}
 
 	//@JsonIgnore
-	public Set<Assignee> getMembers() {
+	public Set<User> getMembers() {
 		return members;
 	}
 
-	public void setMembers(Set<Assignee> members) {
+	public void setMembers(Set<User> members) {
 		this.members = members;
 	}
 

@@ -36,7 +36,7 @@ public class ProjectController {
 	
 	@RequestMapping(value = "/projects", method = RequestMethod.GET, produces = { MediaType.APPLICATION_JSON_VALUE})
 	@ResponseBody
-	public ResponseEntity<ArrayList<Project>> createProject(ProjectDAO projectDAO) {
+	public ResponseEntity<ArrayList<Project>> getAllProject(ProjectDAO projectDAO) {
 		ArrayList<Project> usersList =  (ArrayList<Project>) projectDAO.getAllProjects();
 		if(usersList != null)
 			return new ResponseEntity<ArrayList<Project>>(usersList, HttpStatus.OK);
